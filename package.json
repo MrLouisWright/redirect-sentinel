@@ -1,6 +1,6 @@
 {
   "name": "redirect-sentinel",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Find open redirects and mixed content in a built site or a live crawl: http:// scripts, styles, frames and images on HTTPS pages, insecure forms, client-side redirects fed by URL parameters, open redirect rules in _redirects/vercel.json, HTTPS downgrades, and optional safe redirect probing. Zero deps.",
   "type": "module",
   "main": "./src/index.js",
