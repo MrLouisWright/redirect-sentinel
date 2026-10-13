@@ -1,0 +1,15 @@
+export const RULES = {
+  'open-redirect': { severity: 'critical', title: 'Confirmed open redirect: a parameter sends visitors to any site', group: 'redirect' },
+  'open-redirect-js': { severity: 'high', title: 'Client-side redirect or window.open fed by URL, hash or referrer', group: 'redirect' },
+  'open-redirect-config': { severity: 'high', title: 'Redirect rule sends visitors to a host taken from the request', group: 'redirect' },
+  'mixed-content-active': { severity: 'high', title: 'HTTPS page loads a script, stylesheet, frame or object over http://', group: 'mixed-content' },
+  'redirect-downgrade': { severity: 'high', title: 'Redirect goes from https:// to http://', group: 'redirect' },
+  'insecure-form': { severity: 'high', title: 'Form posts to an http:// URL', group: 'mixed-content' },
+  'mixed-content-passive': { severity: 'medium', title: 'HTTPS page loads an image, audio or video over http://', group: 'mixed-content' },
+  'http-no-redirect': { severity: 'medium', title: 'http:// version of the site does not redirect to https://', group: 'redirect' },
+  'redirect-param': { severity: 'medium', title: 'Link passes a full URL in a redirect-style parameter (next, url, returnTo…)', group: 'redirect' },
+  'meta-refresh-external': { severity: 'low', title: 'Meta refresh redirects to another site', group: 'redirect' },
+  'insecure-link': { severity: 'low', title: 'Link to an http:// URL', group: 'mixed-content' },
+  'redirect-chain': { severity: 'low', title: 'Redirect chain longer than 3 hops', group: 'redirect' },
+  'fetch-error': { severity: 'low', title: 'Page could not be fetched', group: 'network' },
+};

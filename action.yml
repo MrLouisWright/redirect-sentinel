@@ -1,0 +1,54 @@
+name: 'redirect-sentinel'
+description: 'Find open redirects and mixed content in a built site or live crawl'
+author: 'Louis Wright'
+branding: { icon: 'corner-up-right', color: 'orange' }
+inputs:
+  targets: { description: 'Build directories or https:// URLs to crawl (space-separated)', default: '.' }
+  max-pages: { description: 'Maximum pages to crawl per URL (default 50)', default: '' }
+  probe: { description: 'Set to true to actively test redirect parameters (only on sites you own)', default: 'false' }
+  fail-on: { description: 'critical | high | medium | low | info | none', default: 'high' }
+  config: { description: 'Path to JSON config file', default: '' }
+  sarif: { description: 'Write SARIF to this path', default: '' }
+  json: { description: 'Write JSON report to this path', default: '' }
+  job-summary: { description: 'Write the Markdown report to the job summary (true/false)', default: 'true' }
+  args: { description: 'Extra CLI arguments', default: '' }
+outputs:
+  markdown-file: { description: 'Path of the Markdown report', value: '${{ steps.run.outputs.markdown-file }}' }
+  exit-code: { description: 'Exit code of the scan (0 pass, 1 findings, 2 error)', value: '${{ steps.run.outputs.exit-code }}' }
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with: { node-version: '20' }
+    - id: run
+      shell: bash
+      env:
+        RS_TARGETS: ${{ inputs.targets }}
+        RS_MAX_PAGES: ${{ inputs.max-pages }}
+        RS_PROBE: ${{ inputs.probe }}
+        RS_FAIL_ON: ${{ inputs.fail-on }}
+        RS_CONFIG: ${{ inputs.config }}
+        RS_SARIF: ${{ inputs.sarif }}
+        RS_JSON: ${{ inputs.json }}
+        RS_JOB_SUMMARY: ${{ inputs.job-summary }}
+        RS_ARGS: ${{ inputs.args }}
+        RS_BIN: ${{ github.action_path }}/bin/redirect-sentinel.js
+      run: |
+        md="$RUNNER_TEMP/redirect-sentinel.md"
+        # shellcheck disable=SC2206
+        targets=($RS_TARGETS)
+        args=("${targets[@]}" --fail-on "$RS_FAIL_ON" --markdown "$md")
+        [ -n "$RS_MAX_PAGES" ] && args+=(--max-pages "$RS_MAX_PAGES")
+        [ "$RS_PROBE" = "true" ] && args+=(--probe)
+        [ -n "$RS_CONFIG" ] && args+=(--config "$RS_CONFIG")
+        [ -n "$RS_SARIF" ] && args+=(--sarif "$RS_SARIF")
+        [ -n "$RS_JSON" ] && args+=(--json "$RS_JSON")
+        set +e
+        # shellcheck disable=SC2086
+        node "$RS_BIN" "${args[@]}" $RS_ARGS
+        code=$?
+        set -e
+        echo "markdown-file=$md" >> "$GITHUB_OUTPUT"
+        echo "exit-code=$code" >> "$GITHUB_OUTPUT"
+        if [ "$RS_JOB_SUMMARY" = "true" ] && [ -f "$md" ]; then cat "$md" >> "$GITHUB_STEP_SUMMARY"; fi
+        exit $code

@@ -1,0 +1,24 @@
+<!doctype html>
+<html><head>
+<link rel="stylesheet" href="http://cdn.example.com/style.css">
+<link rel="icon" href="http://cdn.example.com/favicon.ico">
+<script src="http://cdn.example.com/lib.js"></script>
+<script src="/assets/app.js"></script>
+<meta http-equiv="refresh" content="30; url=https://other.example.net/">
+<style>@import url("http://fonts.example.com/f.css"); body { background: url(http://img.example.com/bg.png) }</style>
+</head><body>
+<!-- <script src="http://commented.example.com/x.js"></script> -->
+<img src="http://img.example.com/a.png" alt="">
+<img srcset="https://img.example.com/1x.png 1x, http://img.example.com/2x.png 2x">
+<iframe src="http://widgets.example.com/embed"></iframe>
+<form action="http://forms.example.com/submit" method="post"><input name="q"></form>
+<a href="http://partner.example.org/">partner</a>
+<a href="http://partner.example.org/other">partner again</a>
+<a href="/login?next=https://evil.example/">login</a>
+<a href="http://localhost:3000/">dev</a>
+<script>
+  const params = new URLSearchParams(location.search);
+  const dest = params.get('returnTo');
+  if (dest) window.location.href = dest;
+</script>
+</body></html>

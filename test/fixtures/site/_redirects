@@ -1,0 +1,4 @@
+/blog/*   /news/:splat   301
+/go       url=:url  :url  302
+/out/*    https://:splat 302
+/docs     https://docs.example.com 301

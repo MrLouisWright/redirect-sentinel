@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/old", "destination": "/new" },
+    { "source": "/r/:host*", "destination": "https://:host*" }
+  ]
+}
