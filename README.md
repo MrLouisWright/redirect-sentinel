@@ -1,5 +1,7 @@
 # redirect-sentinel
 
+[![npm version](https://img.shields.io/npm/v/redirect-sentinel.svg)](https://www.npmjs.com/package/redirect-sentinel) [![CI](https://github.com/MrLouisWright/redirect-sentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/MrLouisWright/redirect-sentinel/actions/workflows/ci.yml) [![Node](https://img.shields.io/node/v/redirect-sentinel.svg)](https://nodejs.org) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 > Find open redirects and mixed content in a built site (offline) or a live crawl: http:// scripts and styles on HTTPS pages, insecure forms, client-side redirects fed by the URL, open redirect rules in `_redirects`/`vercel.json`/nginx, HTTPS downgrades, and optional safe redirect probing.
 
 Point `redirect-sentinel` at your build output (`dist/`, `public/`, `_site/`) in CI, or at a URL to crawl the live site. CLI, library and GitHub Action. Node.js 18+, **zero runtime dependencies**. Broken links are out of scope (see [static-link-sentinel](https://github.com/MrLouisWright/static-link-sentinel)).
