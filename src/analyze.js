@@ -1,3 +1,4 @@
+import { analyzeHostingRedirects, analyzeNextConfig, analyzeNginx } from './server.js';
 import { scanHtml } from './html.js';
 
 export const REDIRECT_PARAMS = /^(next|url|uri|redirect|redirect_?ur[il]|redirect_?to|return|return_?to|returnurl|return_?path|continue|dest|destination|goto|go|target|to|out|r|u|link|forward|callback|redir|rurl|checkout_?url|success_?url|back|backurl|ref)$/i;
@@ -92,22 +93,16 @@ export function analyzeHtml(html, ctx = {}) {
   return { raw, links, scriptSrcs };
 }
 
-/** Redirect rules: Netlify _redirects / netlify.toml, vercel.json, nginx, Apache. */
+/** Redirect rules: Netlify _redirects / netlify.toml, vercel.json, Next.js redirects(), nginx, Apache. */
 export function analyzeRedirectConfig(text, file) {
-  const raw = []; const name = file.split('/').pop().toLowerCase();
-  const add = (line, message, evidence) => raw.push({ rule: 'open-redirect-config', line, location: `${file}:${line}`, message, evidence, fix: 'Redirect only to fixed hosts; never build the destination host from the request.' });
+  const name = file.split('/').pop().toLowerCase();
+  if (name === '_redirects' || name === 'vercel.json') return analyzeHostingRedirects(text, file);
+  if (/^next\.config\.(m?js|cjs|ts|mts)$/.test(name)) return analyzeNextConfig(text, file);
+  const raw = [];
   const hostFromPlaceholder = (to) => /^(:[\w]+|\$\d|\$\{?\w+)/.test(to) || /^https?:\/\/(:[\w]+|\$\d|\$\{?\w+|\{\w+\})/.test(to) || /^\/\/(:|\$)/.test(to);
+  const add = (line, message, evidence) => raw.push({ rule: 'open-redirect-config', line, location: `${file}:${line}`, message, evidence, fix: 'Redirect only to fixed hosts; never build the destination host from the request.' });
   const lines = String(text).split('\n');
-  if (name === '_redirects') lines.forEach((l, i) => { const t = l.replace(/#.*/, '').trim().split(/\s+/); if (t.length < 2) return; const to = t.slice(1).find((x) => !/=/.test(x)) || ''; if (hostFromPlaceholder(to)) add(i + 1, `${t[0]} redirects to "${to}", a destination taken from the request`, l.trim()); });
-  else if (name === 'netlify.toml') lines.forEach((l, i) => { const m = /^\s*to\s*=\s*["']([^"']+)/.exec(l); if (m && hostFromPlaceholder(m[1])) add(i + 1, `Redirect to "${m[1]}", a destination taken from the request`, m[1]); });
-  else if (name === 'vercel.json' || name === 'next.config.js' || name === 'next.config.mjs') lines.forEach((l, i) => { const m = /["']?destination["']?\s*:\s*["']([^"']+)/.exec(l); if (m && hostFromPlaceholder(m[1])) add(i + 1, `Redirect destination "${m[1]}" is taken from the request`, m[1]); });
-  else lines.forEach((l, i) => {
-    if (/^\s*#/.test(l)) return;
-    if (/\b(return\s+30[1278]|rewrite\s+\S+)\s+\S*\$(arg_\w+|http_referer|request_uri|query_string|args)\b/i.test(l) && !/return\s+30\d\s+https?:\/\/\$(host|server_name)/i.test(l)) {
-      const m = /(return\s+30\d\s+|rewrite\s+\S+\s+)(\S+)/i.exec(l); const to = (m?.[2] || '').replace(/;$/, '');
-      if (/^\$(arg_|http_referer|args|query_string)/i.test(to) || /^https?:\/\/\$(arg_|http_referer)/i.test(to)) add(i + 1, `nginx redirects to "${to}"`, l.trim());
-    }
-    if (/^\s*RewriteRule\s+\S+\s+(%\d|\$\d|https?:\/\/%\d|https?:\/\/%\{QUERY_STRING\}|%\{QUERY_STRING\}|%\{HTTP_REFERER\})\S*\s+\[[^\]]*R/i.test(l)) add(i + 1, 'Apache RewriteRule redirects to a destination captured from the request', l.trim());
-  });
-  return raw;
+  if (name === 'netlify.toml') { lines.forEach((l, i) => { const m = /^\s*to\s*=\s*["']([^"']+)/.exec(l); if (m && hostFromPlaceholder(m[1])) add(i + 1, `Redirect to "${m[1]}", a destination taken from the request`, m[1]); }); return raw; }
+  if (name.includes('htaccess')) { lines.forEach((l, i) => { if (/^\s*RewriteRule\s+\S+\s+(%\d|\$\d|https?:\/\/%\d|https?:\/\/%\{QUERY_STRING\}|%\{QUERY_STRING\}|%\{HTTP_REFERER\})\S*\s+\[[^\]]*R/i.test(l)) add(i + 1, 'Apache RewriteRule redirects to a destination captured from the request', l.trim()); }); return raw; }
+  return analyzeNginx(text, file);
 }

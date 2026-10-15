@@ -2,6 +2,7 @@ export const RULES = {
   'open-redirect': { severity: 'critical', title: 'Confirmed open redirect: a parameter sends visitors to any site', group: 'redirect' },
   'open-redirect-js': { severity: 'high', title: 'Client-side redirect or window.open fed by URL, hash or referrer', group: 'redirect' },
   'open-redirect-config': { severity: 'high', title: 'Redirect rule sends visitors to a host taken from the request', group: 'redirect' },
+  'open-redirect-server': { severity: 'high', title: 'Server code redirects to a value taken from the request (res.redirect, NextResponse.redirect, Location header)', group: 'redirect' },
   'mixed-content-active': { severity: 'high', title: 'HTTPS page loads a script, stylesheet, frame or object over http://', group: 'mixed-content' },
   'redirect-downgrade': { severity: 'high', title: 'Redirect goes from https:// to http://', group: 'redirect' },
   'insecure-form': { severity: 'high', title: 'Form posts to an http:// URL', group: 'mixed-content' },

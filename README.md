@@ -1,6 +1,6 @@
 # redirect-sentinel
 
-[![npm version](https://img.shields.io/npm/v/redirect-sentinel.svg)](https://www.npmjs.com/package/redirect-sentinel) [![CI](https://github.com/MrLouisWright/redirect-sentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/MrLouisWright/redirect-sentinel/actions/workflows/ci.yml) [![Node](https://img.shields.io/node/v/redirect-sentinel.svg)](https://nodejs.org) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![npm version](https://img.shields.io/npm/v/redirect-sentinel.svg)](https://www.npmjs.com/package/redirect-sentinel) [![CI](https://github.com/MrLouisWright/redirect-sentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/MrLouisWright/redirect-sentinel/actions/workflows/ci.yml) [![Node](https://img.shields.io/node/v/redirect-sentinel.svg)](https://nodejs.org) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![provenance](https://img.shields.io/badge/npm-provenance-blue)](https://docs.npmjs.com/generating-provenance-statements)
 
 > Find open redirects and mixed content in a built site (offline) or a live crawl: http:// scripts and styles on HTTPS pages, insecure forms, client-side redirects fed by the URL, open redirect rules in `_redirects`/`vercel.json`/nginx, HTTPS downgrades, and optional safe redirect probing.
 
@@ -112,6 +112,40 @@ Free to use under MIT, no attribution required. If redirect-sentinel helps you, 
 ```markdown
 [![Built with redirect-sentinel by Louis Wright](https://img.shields.io/badge/built%20with-redirect--sentinel-blue)](https://louiswright.co.uk)
 ```
+
+## Safe redirect helpers
+
+```js
+import { safeRedirectUrl, safeRedirectMiddleware, nextSafeRedirect } from 'redirect-sentinel';
+
+// Express
+app.use(safeRedirectMiddleware({ allowedHosts: ['.example.com'], fallback: '/' }));
+app.get('/login/done', (req, res) => res.safeRedirect(req.query.next));
+
+// Next.js middleware / route handler
+return NextResponse.redirect(new URL(nextSafeRedirect(req.nextUrl, 'next'), req.url));
+```
+
+Relative paths are allowed. Absolute URLs pass only when they are HTTPS and on `allowedHosts` (a leading `.` also allows subdomains). Code that uses these helpers isn't reported by `open-redirect-server`.
+
+## Server code and config analysis
+
+- **open-redirect-server** flags `res.redirect(req.query.next)`, `NextResponse.redirect(new URL(searchParams.get('to'), req.url))`, `redirect(searchParams.get(...))` and `Location` headers set from the request, in JS and TS.
+- **Next.js `redirects()`** flags destinations such as `':dest*'` and `'https://:host/'`, including hosts driven by `has: [{ type: 'query', key: 'host' }]`.
+- **nginx** flags `return 301 $arg_url;` and `return 302 https://$arg_host/;`, plus variables built from `$arg_*` or `$http_referer` through `map` or `set`.
+
+This tool only covers redirects and mixed content on your own site. Use header-sentinel and csp-forge for headers and CSP.
+
+## Module formats and types
+
+Ships ESM (`import`) and a bundled CommonJS build (`require`), with TypeScript declarations generated from the source:
+
+```js
+import * as lib from 'redirect-sentinel';      // ESM
+const lib = require('redirect-sentinel');      // CommonJS
+```
+
+Tests live in [`test/`](test) and run on Node 18, 20 and 22 in [GitHub Actions](https://github.com/MrLouisWright/redirect-sentinel/actions/workflows/ci.yml), including a require+import check. Releases are published with `npm publish --provenance`.
 
 ## License
 

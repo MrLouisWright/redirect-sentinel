@@ -1,34 +1,7 @@
 {
   "name": "redirect-sentinel",
   "version": "1.0.0",
-  "description": "Find open redirects and mixed content in a built site or a live crawl: http:// scripts, styles, frames and images on HTTPS pages, insecure forms, client-side redirects fed by URL parameters, open redirect rules in _redirects/vercel.json, HTTPS downgrades, and optional safe redirect probing. Zero deps.",
-  "type": "module",
-  "main": "./src/index.js",
-  "types": "./src/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./src/index.d.ts",
-      "default": "./src/index.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "bin": {
-    "redirect-sentinel": "bin/redirect-sentinel.js"
-  },
-  "files": [
-    "src",
-    "bin",
-    "action.yml",
-    "README.md",
-    "CHANGELOG.md",
-    "LICENSE"
-  ],
-  "engines": {
-    "node": ">=18"
-  },
-  "scripts": {
-    "test": "node --test test/*.test.js"
-  },
+  "description": "Find open redirects and mixed content in a built site or a live crawl: http:// scripts, styles, frames and images on HTTPS pages, insecure forms, client-side redirects fed by URL parameters, open redirect rules in _redirects/vercel.json, HTTPS downgrades, and optional safe redirect probing. One dependency (static-link-sentinel, for redirect-file parsing).",
   "keywords": [
     "open-redirect",
     "mixed-content",
@@ -58,5 +31,53 @@
   "bugs": {
     "url": "https://github.com/MrLouisWright/redirect-sentinel/issues"
   },
-  "homepage": "https://mrlouiswright.github.io/redirect-sentinel/"
+  "homepage": "https://mrlouiswright.github.io/redirect-sentinel/",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./src/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./src/index.js"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "redirect-sentinel": "bin/redirect-sentinel.js"
+  },
+  "files": [
+    "src",
+    "dist",
+    "bin",
+    "action.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "build": "node scripts/build.mjs",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "esbuild": "^0.25.12",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "static-link-sentinel": "^1.1.1"
+  }
 }
