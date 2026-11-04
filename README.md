@@ -4,7 +4,7 @@
 
 > Find open redirects and mixed content in a built site (offline) or a live crawl: http:// scripts and styles on HTTPS pages, insecure forms, client-side redirects fed by the URL, open redirect rules in `_redirects`/`vercel.json`/nginx, HTTPS downgrades, and optional safe redirect probing.
 
-Point `redirect-sentinel` at your build output (`dist/`, `public/`, `_site/`) in CI, or at a URL to crawl the live site. CLI, library and GitHub Action. Node.js 18+, **zero runtime dependencies**. Broken links are out of scope (see [static-link-sentinel](https://github.com/MrLouisWright/static-link-sentinel)).
+Point `redirect-sentinel` at your build output (`dist/`, `public/`, `_site/`) in CI, or at a URL to crawl the live site. CLI, library and GitHub Action. Node.js 18+, one runtime dependency ([static-link-sentinel](https://www.npmjs.com/package/static-link-sentinel), for parsing `_redirects` and `vercel.json`). Broken links are out of scope (see [static-link-sentinel](https://github.com/MrLouisWright/static-link-sentinel)).
 
 ## What it checks
 
@@ -95,7 +95,7 @@ Inputs: `targets`, `fail-on`, `config`, `sarif`, `json`, `job-summary` (Markdown
 
 ## Requirements
 
-Node.js 18 or newer. No runtime dependencies.
+Node.js 18 or newer. One runtime dependency: [static-link-sentinel](https://www.npmjs.com/package/static-link-sentinel).
 
 ## Support
 
